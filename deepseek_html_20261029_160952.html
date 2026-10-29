@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Would You Use an AI Therapist? | by Olya Kumar</title>
+    <style>
+        :root {
+            --brand-red: #D32F2F;
+            --dark-slate: #1A202C;
+            --light-slate: #F7FAFC;
+            --text-grey: #4A5568;
+            --border-color: #E2E8F0;
+            --success: #38A169;
+            --error: #E53E3E;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--dark-slate);
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* --- СВЕТЛАЯ ШАПКА --- */
+        .header {
+            background: #ffffff;
+            padding: 60px 20px 40px;
+            text-align: center;
+            border-bottom: 4px solid var(--brand-red);
+        }
+        
+        .header-image {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+
+        .header h1 { 
+            font-size: 2.6rem; 
+            margin: 0 0 10px 0; 
+            font-weight: 800; 
+            color: var(--dark-slate);
+            letter-spacing: -0.5px;
+        }
+        
+        .header p { 
+            font-size: 1.2rem; 
+            color: var(--text-grey); 
+            margin: 0; 
+            font-weight: 500;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+        .section { margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid var(--border-color); }
+        .section:last-child { border-bottom: none; }
+        .section h2 {
+            font-size: 1.6rem; color: var(--dark-slate); margin-top: 0; margin-bottom: 20px;
+            display: flex; align-items: center;
+        }
+        .section h2::before {
+            content: ''; display: inline-block; width: 8px; height: 24px;
+            background: var(--brand-red); margin-right: 12px; border-radius: 2px;
+        }
+
+        .question-list { list-style: none; padding: 0; margin: 0; }
+        .question-list li {
+            background: var(--light-slate); padding: 16px 20px; margin-bottom: 12px;
+            border-radius: 6px; border-left: 3px solid var(--brand-red); font-size: 1.05rem;
+        }
+
+        /* --- КАРТОЧКИ VOCABULARY --- */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            height: 240px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .flip-card-front {
+            background-color: #fff;
+            border: 2px solid var(--brand-red);
+            color: var(--brand-red);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .flip-card-back {
+            background-color: var(--dark-slate);
+            color: white;
+            transform: rotateY(180deg);
+            border: 2px solid var(--dark-slate);
+        }
+
+        .flip-card-back p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 0 0 15px 0;
+            font-weight: 400;
+        }
+
+        .btn-example {
+            background-color: var(--brand-red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+        .btn-example:hover { background-color: #B71C1C; }
+
+        .example-text {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #CBD5E0;
+        }
+
+        .example-text.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- ОСТАЛЬНЫЕ СТИЛИ --- */
+        .video-container {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+            border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        .btn-check {
+            background-color: var(--brand-red); color: white; border: none; padding: 14px 28px;
+            font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;
+            transition: background 0.2s; width: 100%; margin-top: 20px;
+        }
+        .btn-check:hover { background-color: #B71C1C; }
+        .feedback { margin-top: 15px; font-weight: 600; font-size: 1.1rem; text-align: center; }
+
+        .categorize-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .categorize-grid { grid-template-columns: 1fr; } }
+        .cat-box { background: var(--light-slate); padding: 20px; border-radius: 8px; min-height: 200px; border: 1px dashed var(--border-color); }
+        .cat-box h4 { margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #fff; }
+        .cat-items { display: flex; flex-direction: column; gap: 10px; }
+        .cat-item {
+            background: white; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);
+            cursor: pointer; text-align: center; font-weight: 500; transition: transform 0.1s;
+        }
+        .cat-item:hover { transform: scale(1.02); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .correct-item { background: #F0FFF4 !important; border-color: var(--success) !important; color: var(--success); }
+        .incorrect-item { background: #FFF5F5 !important; border-color: var(--error) !important; color: var(--error); }
+
+        .homework-trigger-container { text-align: center; margin-top: 50px; margin-bottom: 50px; }
+        .btn-homework {
+            display: inline-block; text-decoration: none;
+            background-color: var(--dark-slate); color: white; border: 2px solid var(--brand-red);
+            padding: 16px 32px; font-size: 1.2rem; border-radius: 8px; cursor: pointer;
+            font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn-homework:hover { background-color: var(--brand-red); transform: translateY(-2px); }
+
+        .footer {
+            background: var(--dark-slate); color: #A0AEC0; padding: 30px 20px; margin-top: 60px;
+            text-align: center; border-top: 4px solid var(--brand-red); font-size: 0.95rem;
+        }
+        .footer-author { color: white; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <!-- Светлая шапка -->
+    <div class="header">
+        <img src="https://i.ibb.co/ynyZZ5bT/Twilight-Conversation-with-a-Holographic-Guide.jpg" alt="AI Therapist" class="header-image">
+        <h1>Would You Use an AI Therapist?</h1>
+        <p>Corporate English Lesson</p>
+    </div>
+
+    <div class="container">
+
+        <!-- 1. Warm-up -->
+        <div class="section">
+            <h2>1. Think about these questions before watching</h2>
+            <ul class="question-list">
+                <li>Many people use technology to stay healthy or manage stress. What kind of apps or digital tools do you currently use for your well-being, and what do you find most helpful or challenging about them?</li>
+                <li>Artificial intelligence is becoming more common in many aspects of our lives. In your opinion, what are some areas where AI could be genuinely beneficial, and where should we be more cautious, especially when it comes to sensitive topics like mental health?</li>
+                <li>Imagine a future where AI-powered tools are widely used to support mental health. What do you think would be the biggest advantages of this? What potential drawbacks or ethical concerns might arise if people relied on AI for therapy?</li>
+            </ul>
+        </div>
+
+        <!-- 2. Vocabulary (КАРТОЧКИ) -->
+        <div class="section">
+            <h2>2. Vocabulary (Click to flip)</h2>
+            <div class="vocab-grid">
+                
+                <div class="flip-card" onclick="if(!event.target.classList.contains('btn-example')) this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">reframe negative thoughts</div>
+                        <div class="flip-card-back">
+                            <p>To change the way you think about a situation, especially by looking at it from a more positive or constructive perspective.</p>
+                            <button class="btn-example" onclick="toggleExample(this, event)">Show Example</button>
+                            <div class="example-text">"AI can help individuals <strong>reframe negative thoughts</strong> and provide advice."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="if(!event.target.classList.contains('btn-example')) this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">a double-edged sword</div>
+                        <div class="flip-card-back">
+                            <p>Something that has both advantages and disadvantages, or that can have both good and bad consequences.</p>
+                            <button class="btn-example" onclick="toggleExample(this, event)">Show Example</button>
+                            <div class="example-text">"AI in therapy can be <strong>a double-edged sword</strong>, offering convenience but lacking human empathy."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="if(!event.target.classList.contains('btn-example')) this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">foster a connection</div>
+                        <div class="flip-card-back">
+                            <p>To help develop a relationship or a feeling of understanding and trust between people.</p>
+                            <button class="btn-example" onclick="toggleExample(this, event)">Show Example</button>
+                            <div class="example-text">"A human therapist can <strong>foster a deeper connection</strong> than a chatbot."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="if(!event.target.classList.contains('btn-example')) this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">raise ethical questions</div>
+                        <div class="flip-card-back">
+                            <p>To bring up moral issues or dilemmas that need to be considered and discussed.</p>
+                            <button class="btn-example" onclick="toggleExample(this, event)">Show Example</button>
+                            <div class="example-text">"This situation <strong>raises ethical questions</strong> about inclusivity and safety."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="if(!event.target.classList.contains('btn-example')) this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">narrow cultural view</div>
+                        <div class="flip-card-back">
+                            <p>A limited understanding or perspective that doesn't consider the beliefs, values, or experiences of people from different cultures.</p>
+                            <button class="btn-example" onclick="toggleExample(this, event)">Show Example</button>
+                            <div class="example-text">"If AI models are trained on Western data, they might possess a <strong>narrow cultural view</strong>."</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 3. Video -->
+        <div class="section">
+            <h2>3. Watch the Video</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/_0tSQM2qNJg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div style="background: var(--light-slate); padding: 20px; border-radius: 8px; border-left: 3px solid var(--brand-red);">
+                <h3 style="margin-top: 0; color: var(--dark-slate);">Comprehension Check:</h3>
+                <ul style="margin-bottom: 0;">
+                    <li>What are the main benefits of AI therapy mentioned in the video?</li>
+                    <li>What are the biggest concerns regarding AI therapy?</li>
+                    <li>What does the video say about the connection between humans and AI?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4. Categorize -->
+        <div class="section">
+            <h2>4. Benefits vs. Drawbacks (Click to sort)</h2>
+            <div class="categorize-grid">
+                <div class="cat-box" id="benefits-box">
+                    <h4 style="color: var(--success);">Potential Benefits</h4>
+                    <div class="cat-items" id="benefits-list"></div>
+                </div>
+                <div class="cat-box" id="drawbacks-box">
+                    <h4 style="color: var(--error);">Potential Drawbacks</h4>
+                    <div class="cat-items" id="drawbacks-list"></div>
+                </div>
+            </div>
+            <button class="btn-check" onclick="checkEx12()">Check Categories</button>
+            <div id="ex12-feedback" class="feedback"></div>
+        </div>
+
+        <!-- 5. Discussion -->
+        <div class="section">
+            <h2>5. Deep Discussion</h2>
+            <ul class="question-list">
+                <li>Is AI therapy a <strong>double-edged sword</strong> for mental health support? Why?</li>
+                <li>Should AI therapists be regulated? Who is responsible if the AI gives bad advice?</li>
+                <li>If AI therapy is cheaper, is it <strong>ethical</strong> to prioritise it over human therapy for some groups?</li>
+                <li>What happens to data privacy when you share your secrets with an AI chatbot?</li>
+                <li>Do you think AI models with a <strong>narrow cultural view</strong> could cause harm to minority groups?</li>
+                <li>Can AI genuinely <strong>foster a connection</strong> essential for therapy?</li>
+                <li>Do you think people can feel real empathy from a machine? Why might someone prefer it?</li>
+                <li>Is a superficial interaction sometimes better than no interaction at all?</li>
+                <li>If an AI helps someone <strong>reframe negative thoughts</strong>, does it matter that the AI doesn't "feel"?</li>
+                <li>Would you trust an AI to know when a person is in a crisis?</li>
+                <li>As IT professionals, do you think the tech industry pushes AI too fast without thinking about <strong>ethical questions</strong>?</li>
+                <li>How would you feel if your company offered an AI therapist for employee wellbeing?</li>
+                <li>Would you trust an AI built by a tech company with your mental health?</li>
+                <li>If you were building an AI therapist, what would be the biggest challenge to make it truly <strong>foster a connection</strong>?</li>
+                <li>Do tech companies have a responsibility to ensure their AI doesn't have a <strong>narrow cultural view</strong>?</li>
+            </ul>
+        </div>
+
+        <div class="section homework-trigger-container">
+            <h2 style="justify-content: center;">Ready for Homework?</h2>
+            <p style="margin-bottom: 25px; color: var(--text-grey);">Click the button below to open the interactive homework page.</p>
+            <a href="homework.html" class="btn-homework" target="_blank">📝 Go to Homework Page</a>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        by <span class="footer-author">Olya Kumar</span>
+    </div>
+
+    <script>
+        // --- ЛОГИКА ДЛЯ КАРТОЧЕК VOCABULARY ---
+        function toggleExample(btn, event) {
+            event.stopPropagation(); 
+            const exampleDiv = btn.nextElementSibling;
+            
+            if (exampleDiv.classList.contains('show')) {
+                exampleDiv.classList.remove('show');
+                btn.textContent = 'Show Example';
+            } else {
+                exampleDiv.classList.add('show');
+                btn.textContent = 'Hide Example';
+            }
+        }
+
+        // --- EXERCISE 12 (Categorize) ---
+        const ex12Items = [
+            { text: "Helping users to reframe negative thoughts.", type: "benefit" },
+            { text: "Potentially reinforcing harmful stereotypes.", type: "drawback" },
+            { text: "Increasing accessibility to therapy services.", type: "benefit" },
+            { text: "Struggling to foster a genuine connection.", type: "drawback" },
+            { text: "The technology being a double-edged sword.", type: "drawback" },
+            { text: "Risking increased user isolation.", type: "drawback" },
+            { text: "Providing a safe space for open discussion.", type: "benefit" },
+            { text: "Being as effective as human therapists for some conditions.", type: "benefit" },
+            { text: "Offering immediate, 24/7 mental health support.", type: "benefit" },
+            { text: "Being trained on a narrow cultural view.", type: "drawback" },
+            { text: "Conversations feeling empty or generic.", type: "drawback" },
+            { text: "Raising ethical questions about data privacy.", type: "drawback" },
+            { text: "Providing companionship and advice.", type: "benefit" }
+        ];
+
+        function initEx12() {
+            const bList = document.getElementById('benefits-list');
+            const dList = document.getElementById('drawbacks-list');
+            bList.innerHTML = '';
+            dList.innerHTML = '';
+            let shuffled = [...ex12Items].sort(() => Math.random() - 0.5);
+            shuffled.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'cat-item';
+                div.textContent = item.text;
+                div.setAttribute('data-type', item.type);
+                div.onclick = function(e) {
+                    e.stopPropagation();
+                    if (this.parentElement === bList) dList.appendChild(this);
+                    else bList.appendChild(this);
+                    this.classList.remove('correct-item', 'incorrect-item');
+                };
+                bList.appendChild(div);
+            });
+        }
+
+        function checkEx12() {
+            let score = 0;
+            document.querySelectorAll('.cat-item').forEach(el => {
+                const type = el.getAttribute('data-type');
+                const isInBenefits = el.parentElement.id === 'benefits-list';
+                el.classList.remove('correct-item', 'incorrect-item');
+                if ((type === 'benefit' && isInBenefits) || (type === 'drawback' && !isInBenefits)) {
+                    el.classList.add('correct-item'); score++;
+                } else {
+                    el.classList.add('incorrect-item');
+                }
+            });
+            document.getElementById('ex12-feedback').innerHTML = `You sorted <strong>${score}</strong> out of <strong>13</strong> correctly!`;
+        }
+
+        window.onload = initEx12;
+    </script>
+</body>
+</html>
